@@ -1,0 +1,24 @@
+[Unit]
+Description=Chabaqa Frontend
+After=network-online.target chabaqa-backend.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=chabaqa
+WorkingDirectory=/opt/chabaqa/current/frontend
+EnvironmentFile=/etc/chabaqa/frontend.env
+Environment=PORT=8083
+Environment=HOSTNAME=127.0.0.1
+Environment="NODE_OPTIONS=--max-old-space-size=384 --max-semi-space-size=32"
+Environment=PATH=/home/ubuntu/.local/node-v22.19.0-linux-x64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+ExecStartPre=/bin/sh -c 'test -n "$JWT_SECRET"'
+ExecStart=/usr/bin/env node .next/standalone/server.js
+Restart=always
+RestartSec=5
+MemoryMax=512M
+CPUQuota=100%
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

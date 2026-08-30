@@ -1,0 +1,52 @@
+name: Deploy Chabaqa VPS
+
+# Continuous deployment for the Chabaqa VPS via a self-hosted runner that lives
+# on the server itself. Every push/merge to main is checked out into an isolated
+# per-commit source tree and built into an atomic native-systemd release, then
+# cut over live. Health-check failures roll the previous release back
+# automatically (see scripts/deploy-systemd.sh). No SSH keys or secrets required.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: chabaqa-vps-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build, release, and cut over
+    runs-on: [self-hosted, Linux, X64]
+    timeout-minutes: 45
+    steps:
+      - name: Check out this commit into an isolated source tree
+        run: |
+          set -euo pipefail
+          SRC="/opt/chabaqa/deploy-sources/${GITHUB_SHA}"
+          sudo -n install -d -o ubuntu -g ubuntu -m 0755 /opt/chabaqa/deploy-sources
+          rm -rf -- "$SRC"
+          git clone --no-checkout --filter=blob:none \
+            git@github-anibaa:${GITHUB_REPOSITORY}.git "$SRC"
+          git -C "$SRC" checkout --detach "${GITHUB_SHA}"
+
+      - name: Build atomic release and cut over
+        run: |
+          set -euo pipefail
+          SRC="/opt/chabaqa/deploy-sources/${GITHUB_SHA}"
+          sudo -n PROJECT_DIR="$SRC" DEPLOY_REF="${GITHUB_SHA}" \
+            /bin/bash "$SRC/scripts/deploy-systemd.sh"
+
+      - name: Verify live health
+        run: |
+          echo "Active release: $(readlink -f /opt/chabaqa/current)"
+          curl -fsS -o /dev/null -w "backend=%{http_code}\n"  --max-time 10 http://127.0.0.1:3000/api/health/ping
+          curl -fsS -o /dev/null -w "frontend=%{http_code}\n" --max-time 10 http://127.0.0.1:8083/api/health/ping
+
+      - name: Clean up source tree
+        if: always()
+        run: rm -rf -- "/opt/chabaqa/deploy-sources/${GITHUB_SHA}"
