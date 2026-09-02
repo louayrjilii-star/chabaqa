@@ -10,11 +10,11 @@ export default function ManageCoursePage() {
   const courseId = String(params?.courseId || params?.id || '')
 
   return (
-    <div className="flex min-h-screen" style={{ background: 'var(--bg)' }}>
+    <div className="flex h-screen overflow-hidden" style={{ background: 'var(--bg)' }}>
       <DashSidebar />
-      <div className="md:ml-[220px] flex-1 flex flex-col min-h-screen">
+      <div className="md:ml-[220px] flex h-screen flex-1 flex-col overflow-hidden">
         <DashTopbar title="Manage Course" subtitle="Edit course content, pricing, resources and settings" />
-        <main id="main-content" className="flex-1">
+        <main id="main-content" className="flex min-h-0 flex-1 flex-col overflow-hidden">
           {courseId ? <CourseManager courseId={courseId} /> : <div className="p-7 text-sm text-red-600">Course ID is missing.</div>}
         </main>
       </div>

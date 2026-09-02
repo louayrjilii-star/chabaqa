@@ -16,7 +16,7 @@ interface PricingTabProps {
 
 export function PricingTab({ formData, course, onInputChange }: PricingTabProps) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
       <EnhancedCard>
         <CardHeader>
           <CardTitle>Course Pricing</CardTitle>

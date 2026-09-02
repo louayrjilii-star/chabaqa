@@ -44,8 +44,8 @@ export function DetailsTab({
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div className="lg:col-span-2 space-y-6">
+    <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">
+      <div className="space-y-5 xl:col-span-2">
         <EnhancedCard>
           <CardHeader>
             <CardTitle>Basic Information</CardTitle>
@@ -204,7 +204,7 @@ export function DetailsTab({
         </EnhancedCard>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-5">
         <EnhancedCard>
           <CardHeader>
             <CardTitle>Course Thumbnail</CardTitle>
