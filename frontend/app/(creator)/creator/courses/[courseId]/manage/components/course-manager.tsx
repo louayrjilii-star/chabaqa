@@ -7,7 +7,7 @@ import { Course } from "@/lib/models"
 import { toast } from "sonner"
 import { PageState } from "@/components/creator-dashboard/page-state"
 import { CourseHeader } from "./course-header"
-import { CourseTabs } from "./course-tabs"
+import { CourseTabs, getCourseTabMeta } from "./course-tabs"
 import { DetailsTab } from "./tabs/details-tab"
 import { ContentTab } from "./tabs/content-tab"
 import { PricingTab } from "./tabs/pricing-tab"
@@ -453,16 +453,40 @@ export function CourseManager({ courseId }: { courseId: string }) {
   const totalChapters = course.sections?.reduce((acc, s) => acc + s.chapters.length, 0) || 0
   const previewChapters = course.sections?.reduce((acc, s) => acc + s.chapters.filter((c) => c.isPreview).length, 0) || 0
   const totalRevenue = (course.enrollments?.length || 0) * (course.price || 0)
+  const activeTabMeta = getCourseTabMeta(activeTab)
 
   return (
-    <div className="space-y-8 p-5">
-      <CourseHeader 
-        course={course} 
-        onSave={handleSave} 
-        isLoading={isLoading} 
-      />
-
-      <CourseTabs activeTab={activeTab} onTabChange={setActiveTab}>
+    <div className="course-manage-workspace flex h-full min-h-0 flex-1 overflow-hidden" style={{ background: "var(--bg)" }}>
+      <style>{`
+        .course-manage-canvas { scrollbar-width: thin; scrollbar-color: var(--p3) transparent; }
+        .course-manage-canvas::-webkit-scrollbar { width: 5px; height: 5px; }
+        .course-manage-canvas::-webkit-scrollbar-track { background: transparent; }
+        .course-manage-canvas::-webkit-scrollbar-thumb { background: var(--p3); border-radius: 10px; }
+        .course-manage-canvas .bg-card { background: var(--white); border-color: var(--bd); border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,.03); }
+        .course-manage-canvas .bg-card > div:first-child > .text-2xl { font-size: 14px; line-height: 1.4; font-weight: 700; color: var(--t1); }
+        .course-manage-canvas .bg-card > div:first-child > .text-sm { font-size: 12px; line-height: 1.5; color: var(--t3); }
+        .course-manage-canvas label { color: var(--t2); font-size: 12px; font-weight: 700; }
+        .course-manage-canvas input, .course-manage-canvas textarea, .course-manage-canvas button[role="combobox"] { border-color: var(--bd); }
+        .course-manage-canvas input:focus-visible, .course-manage-canvas textarea:focus-visible, .course-manage-canvas button[role="combobox"]:focus-visible { border-color: var(--p); box-shadow: 0 0 0 2px var(--p2); }
+        @media (prefers-reduced-motion: reduce) {
+          .course-manage-workspace *, .course-manage-workspace *::before, .course-manage-workspace *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+        }
+      `}</style>
+      <CourseTabs
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        course={course}
+        totalChapters={totalChapters}
+        previewChapters={previewChapters}
+        header={
+          <CourseHeader
+            activeLabel={activeTabMeta.label}
+            activeDescription={activeTabMeta.description}
+            onSave={handleSave}
+            isLoading={isLoading}
+          />
+        }
+      >
         {activeTab === "details" && (
           <DetailsTab
             formData={formData}

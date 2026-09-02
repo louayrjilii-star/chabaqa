@@ -8,7 +8,7 @@ import { PricingDetailsStep } from "./pricing-details-step"
 import { CourseContentStep } from "./course-content-step"
 import { ReviewPublishStep } from "./review-publish-step"
 import { NavigationButtons } from "./navigation-buttons"
-import { coursesApi, normalizeCourseResponse } from "@/lib/api/courses.api"
+import { coursesApi } from "@/lib/api/courses.api"
 import { useToast } from "@/hooks/use-toast"
 import { useCreatorCommunity } from "@/app/(creator)/creator/context/creator-community-context"
 import { getCreatorVideoUrlError, normalizeVideoUrl } from "@/lib/utils/video-source"
@@ -529,13 +529,10 @@ export function CourseCreationContainer() {
 
       console.log('📤 [COURSE SUBMIT] Final payload:', JSON.stringify(payload, null, 2))
 
-      const res = await coursesApi.create(payload)
-      const created = normalizeCourseResponse(res)
+      await coursesApi.create(payload)
       toast({ title: 'Course created', description: payload.titre })
       draftStorage.clearDraft()
-      const id = created?.mongoId || created?._id || created?.id
-      if (id) router.push(`/creator/courses/${id}/manage`)
-      else router.push('/creator/courses')
+      router.replace('/creator/courses')
     } catch (e: any) {
       console.error('❌ [COURSE SUBMIT] Failed:', e)
       toast({ title: 'Failed to create course', description: e?.message || 'Please review required fields.', variant: 'destructive' as any })

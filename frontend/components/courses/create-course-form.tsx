@@ -1095,7 +1095,7 @@ export function CreateCourseForm() {
       }))
 
       setSuccess(true)
-      setTimeout(() => router.push("/creator/courses"), 2800)
+      setTimeout(() => router.replace("/creator/courses"), 2800)
     } catch (err: any) {
       setError(err.message || "Something went wrong.")
     } finally {
